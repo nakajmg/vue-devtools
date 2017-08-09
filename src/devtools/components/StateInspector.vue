@@ -5,7 +5,8 @@
       <div class="data-fields">
         <template v-if="Array.isArray(state[type])">
           <data-field
-            v-for="field in state[type]"
+            v-for="field in filteredState(type)"
+            :search="search"
             :key="field.key"
             :field="field"
             :depth="0">
@@ -13,7 +14,8 @@
         </template>
         <template v-else>
           <data-field
-            v-for="(value, key) in state[type]"
+            v-for="(value, key) in filteredState(type)"
+            :search="search"
             :key="key"
             :field="{ value, key }"
             :depth="0">
@@ -36,9 +38,32 @@ const keyOrder = {
 }
 
 export default {
-  props: ['state'],
+  props: ['state', 'filter'],
   components: {
     DataField
+  },
+  computed: {
+    filteredState() {
+      return (type) => {
+        if (!this.filter) return this.state[type]
+        if (type === 'mutations') return this.state[type]
+        const state = this.state[type]
+        const filter = this.filter.toLowerCase()
+        if (Array.isArray(state)) {
+          return state.filter((field) => {
+            return field.key.toLowerCase().indexOf(filter) !== -1
+          })
+        }
+        else {
+          return Object.keys(state).reduce((ret, key) => {
+            if (key.toLowerCase().indexOf(filter) !== -1) {
+              ret[key] = state[key]
+            }
+            return ret
+          }, {})
+        }
+      }
+    }
   },
   methods: {
     getKeys (state) {
@@ -73,12 +98,12 @@ export default {
   padding 0px 10px
   flex 1 0 33.33%
   font-size 14px
-
+  
   .data-type
     color #486887
     padding-left 20px
     margin-bottom -10px
-
+    
     .app.dark &
       color lighten(#486887, 30%)
 </style>

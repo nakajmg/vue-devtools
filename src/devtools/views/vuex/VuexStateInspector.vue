@@ -1,6 +1,10 @@
 <template>
   <scroll-pane>
     <action-header slot="header">
+      <div class="search">
+        <i class="search-icon material-icons">search</i>
+        <input placeholder="Filter state & getters" v-model.trim="filter">
+      </div>
       <a class="button export" @click="copyStateToClipboard" title="Export Vuex State">
         <i class="material-icons">content_copy</i>
         <span>Export</span>
@@ -50,7 +54,8 @@ export default {
     return {
       showStateCopiedMessage: false,
       showBadJSONMessage: false,
-      showImportStatePopup: false
+      showImportStatePopup: false,
+      filter: ''
     }
   },
   computed: mapGetters('vuex', [
